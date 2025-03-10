@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 
 from app import models, schemas, utils
 from app.db import database
-from app.utils import get_current_user
+from app.utils import get_current_user, oauth2_scheme
 from app.config import config
 
 SECRET_KEY = config["SECRET_KEY"]
@@ -65,3 +65,21 @@ def get_current_user(
 ):
     """Returns information about the currently logged-in user."""
     return current_user
+
+
+@router.post("/logout")
+def logout(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(database.get_db)
+):
+    """Adds token to the blacklist upon logout"""
+
+    existing_token = db.query(models.TokenBlacklist).filter_by(token=token).first()
+    
+    if existing_token:
+        return {"message": "Token is already blacklisted"}
+    
+    db_token = models.TokenBlacklist(token=token)
+    db.add(db_token)
+    db.commit()
+    return {"message": "Successfully logged out"}

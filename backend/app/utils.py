@@ -28,6 +28,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+def is_token_blacklisted(token: str, db: Session) -> bool:
+    """Checks if the token is in the blacklist"""
+    return db.query(models.TokenBlacklist).filter_by(token=token).first() is not None
+
+
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
     """Retrieves the currently authenticated user based on the provided token."""
     credentials_exception = HTTPException(
@@ -35,6 +40,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         detail="Invalid authentication credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    # blacklisted_token = db.query(models.TokenBlacklist).filter_by(token=token).first()
+    # if blacklisted_token:
+    #     raise HTTPException(
+    #         status_code=401,
+    #         detail="Token has been blacklisted. Please log in again."
+    #     )
+
+    if is_token_blacklisted(token=token, db=db):
+        raise HTTPException(
+            status_code=401,
+            detail="Token has been blacklisted. Please log in again."
+        )
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -48,3 +66,5 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+
+
