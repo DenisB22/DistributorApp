@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Form
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
@@ -27,7 +28,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 def common_login(user, password):
     if not user or not utils.verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
     if not user.is_active:
         raise HTTPException(status_code=403, detail="User account is deactivated")
@@ -39,24 +40,23 @@ def common_login(user, password):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/login/json")
-def login(request: schemas.LoginRequest, db: Session = Depends(database.get_db)):
+@router.post("/login/json", response_model=schemas.Token)
+def login_json(request: schemas.LoginRequest, db: Session = Depends(database.get_db)):
     """Login with JSON (For Postman, Mobile Apps, etc.)"""
     user = db.query(models.User).filter(models.User.email == request.email).first()
 
     return common_login(user, request.password)
 
 
-@router.post("/login")
-def login(
-        username: str = Form(...),
-        password: str = Form(...),
-        db: Session = Depends(database.get_db)
-    ):
+@router.post("/login", response_model=schemas.Token)
+def login_oauth(
+    form_data: OAuth2PasswordRequestForm = Depends(),  # използваме OAuth2 стандарта
+    db: Session = Depends(database.get_db)
+):
     """Login with OAuth2 Password Flow (Swagger UI)"""
-    user = db.query(models.User).filter(models.User.username == username).first()
 
-    return common_login(user, password)
+    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    return common_login(user, form_data.password)
 
 
 @router.get("/me", response_model=schemas.User)

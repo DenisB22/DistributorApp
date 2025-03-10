@@ -49,3 +49,9 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class Token(BaseModel):
+    """Schema for authentication token response."""
+    access_token: str
+    token_type: str
