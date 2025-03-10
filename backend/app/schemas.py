@@ -51,6 +51,7 @@ class User(UserBase):
         orm_mode = True
 
 
+# Schema for returning token data
 class Token(BaseModel):
     """Schema for authentication token response."""
     access_token: str

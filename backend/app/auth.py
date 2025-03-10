@@ -50,7 +50,7 @@ def login_json(request: schemas.LoginRequest, db: Session = Depends(database.get
 
 @router.post("/login", response_model=schemas.Token)
 def login_oauth(
-    form_data: OAuth2PasswordRequestForm = Depends(),  # използваме OAuth2 стандарта
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get_db)
 ):
     """Login with OAuth2 Password Flow (Swagger UI)"""
