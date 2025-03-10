@@ -1,0 +1,11 @@
+venv/
+app/.env
+app/__pycache__/
+alembic/__pycache__/
+alembic/versions//__pycache__/
+*.pyc
+*.pyo
+*.log
+migrations/
+.idea/
+.DS_Store
