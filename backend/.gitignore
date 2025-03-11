@@ -1,6 +1,11 @@
 venv/
 app/.env
 app/__pycache__/
+app/routes/__pycache__
+app/schemas/__pycache__
+app/enums/__pycache__
+app/db/__pycache__
+app/cron/__pycache__
 alembic/__pycache__/
 alembic/versions//__pycache__/
 *.pyc

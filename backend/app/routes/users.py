@@ -2,24 +2,26 @@ from typing import List, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import schemas, models, commons
+from app import models, commons
+from app.schemas import user
 from app.db import database
 from app.utils import get_password_hash, get_current_user
-from app.config import config
+from app.constants import RoleName
+from app.enums.roles import EnumRoles 
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/register", response_model=schemas.User)
+@router.post("/register", response_model=user.User)
 def create_user(
-    user: schemas.UserCreate,
+    user: user.UserCreate,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user),  # Get the current user
 ):
     """Only superusers can create new users."""
 
-    # Only superusers are allowed to create new users
-    if not current_user.is_superuser:
+    # Only superusers and staff are allowed to create new users
+    if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN):
         message = "You do not have permission to create users."
         return commons.return_http_400_response(message)
 
@@ -48,31 +50,35 @@ def create_user(
     return db_user
 
 
-@router.get("/", response_model=Union[List[schemas.User], None])
+@router.get("/", response_model=Union[List[user.User], None])
 def get_all_users(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Only superusers can retrieve the list of all users."""
-    
-    if not current_user.is_superuser:
+    """Only superusers and staff can retrieve the list of all users."""
+
+    if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN):
         message = "Only superusers can retrieve list of all users!"
         return commons.return_http_403_response(message)
+    
     users = db.query(models.User).all()
     return users
 
 
-@router.get("/{user_id}", response_model=Union[List[schemas.User], None])
+@router.get("/{user_id}", response_model=Union[user.User, None])
 def get_user(
     user_id: int,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):  
-    """Only superusers can retrieve a specific user."""
+    """Only superusers and staff can retrieve a specific user."""
 
-    if not current_user.is_superuser and current_user.id != user_id:
+    if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN) and current_user.id != user_id:
         message = "You do not have permission to retrieve this user!"
-        return commons.return_http_403_response(message)    
+        return commons.return_http_403_response(message)
+
+    enum_roles = EnumRoles
+    print(f"ENUM ROLES: {enum_roles}")
     
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
@@ -81,21 +87,21 @@ def get_user(
     return user 
 
 
-@router.put("/{user_id}", response_model=Union[List[schemas.User], None])
+@router.put("/{user_id}", response_model=Union[user.User, None])
 def update_user(
     user_id: int,
-    user_to_update: schemas.UserUpdate,
+    user_to_update: user.UserUpdate,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Allows updating user details (only superuser or the user themselves)."""
+    """Allows updating user details (only superuser, staff or the user themselves)."""
 
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         return commons.return_http_404_response("User not found!")
 
-    # Only superuser or the user themselves can update the profile
-    if not current_user.is_superuser and current_user.id != user.id:
+    # Only superuser, staff or the user themselves can update the profile
+    if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN) and current_user.id != user.id:
         return commons.return_http_403_response("You do not have permission to edit this user!")
 
     # Validate unique username
@@ -108,8 +114,8 @@ def update_user(
         if db.query(models.User).filter(models.User.email == user_to_update.email).first():
             return commons.return_http_400_response("Email is already taken!")
 
-    # Ensure only superusers can modify certain fields
-    if (user_to_update.is_superuser is not None or user_to_update.is_active is not None) and not current_user.is_superuser:
+    # Ensure only superusers and staff can modify certain fields
+    if (user_to_update.is_superuser is not None or user_to_update.is_active is not None) and not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN):
         return commons.return_http_403_response("You do not have permission to edit these fields!")
 
     # Update allowed fields
@@ -123,8 +129,8 @@ def update_user(
     if user_to_update.password:
         user.hashed_password = get_password_hash(user_to_update.password)
 
-    # Only superusers can modify is_superuser and is_active
-    if current_user.is_superuser:
+    # Only superusers and staff can modify is_superuser and is_active
+    if (current_user.is_superuser or current_user.role.name == RoleName.ADMIN):
 
         user.is_superuser = user_to_update.is_superuser if user_to_update.is_superuser is not None else user.is_superuser
         user.is_active = user_to_update.is_active if user_to_update.is_active is not None else user.is_active
@@ -140,13 +146,13 @@ def delete_user(
     db: Session = Depends(database.get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    """Only superusers can delete users."""
+    """Only superusers and staff can delete users."""
     
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
 
-    if not current_user.is_superuser:
+    if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN):
         raise HTTPException(status_code=403, detail="You do not have permission to delete users.")
 
     db.delete(user)

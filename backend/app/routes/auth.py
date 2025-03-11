@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 from jose import jwt
 from passlib.context import CryptContext
 
-from app import models, schemas, utils
+from app import models, utils
+from app.schemas import token, user
 from app.db import database
 from app.utils import get_current_user, oauth2_scheme
 from app.config import config
@@ -40,15 +41,15 @@ def common_login(user, password):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/login/json", response_model=schemas.Token)
-def login_json(request: schemas.LoginRequest, db: Session = Depends(database.get_db)):
+@router.post("/login/json", response_model=token.Token)
+def login_json(request: user.LoginRequest, db: Session = Depends(database.get_db)):
     """Login with JSON (For Postman, Mobile Apps, etc.)"""
     user = db.query(models.User).filter(models.User.email == request.email).first()
 
     return common_login(user, request.password)
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=token.Token)
 def login_oauth(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get_db)
@@ -59,7 +60,7 @@ def login_oauth(
     return common_login(user, form_data.password)
 
 
-@router.get("/me", response_model=schemas.User)
+@router.get("/me", response_model=user.User)
 def get_current_user(
         current_user: models.User = Depends(get_current_user)
 ):

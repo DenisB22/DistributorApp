@@ -41,13 +41,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    # blacklisted_token = db.query(models.TokenBlacklist).filter_by(token=token).first()
-    # if blacklisted_token:
-    #     raise HTTPException(
-    #         status_code=401,
-    #         detail="Token has been blacklisted. Please log in again."
-    #     )
-
     if is_token_blacklisted(token=token, db=db):
         raise HTTPException(
             status_code=401,

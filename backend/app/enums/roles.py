@@ -1,0 +1,16 @@
+from enum import Enum
+from app.db.database import SessionLocal
+from app import models
+
+
+def get_roles():
+    role_lst = []
+    db = SessionLocal()
+    role_model = db.query(models.Role).all()
+    for item in role_model:
+        role_lst.append(item.name)
+    db.close()
+    return role_lst
+
+
+EnumRoles = Enum("Role", {name: name for name in get_roles()}, type=str)
