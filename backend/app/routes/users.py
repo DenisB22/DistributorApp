@@ -7,7 +7,6 @@ from app.schemas import user
 from app.db import database
 from app.utils import get_password_hash, get_current_user
 from app.constants import RoleName
-from app.enums.roles import EnumRoles 
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -76,9 +75,6 @@ def get_user(
     if not (current_user.is_superuser or current_user.role.name == RoleName.ADMIN) and current_user.id != user_id:
         message = "You do not have permission to retrieve this user!"
         return commons.return_http_403_response(message)
-
-    enum_roles = EnumRoles
-    print(f"ENUM ROLES: {enum_roles}")
     
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
