@@ -14,7 +14,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 @router.post("/register", response_model=user.User)
 def create_user(
     user: user.UserCreate,
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user),  # Get the current user
 ):
     """Only superusers can create new users."""
@@ -51,7 +51,7 @@ def create_user(
 
 @router.get("/", response_model=Union[List[user.User], None])
 def get_all_users(
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """Only superusers and staff can retrieve the list of all users."""
@@ -67,7 +67,7 @@ def get_all_users(
 @router.get("/{user_id}", response_model=Union[user.User, None])
 def get_user(
     user_id: int,
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user)
 ):  
     """Only superusers and staff can retrieve a specific user."""
@@ -87,7 +87,7 @@ def get_user(
 def update_user(
     user_id: int,
     user_to_update: user.UserUpdate,
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """Allows updating user details (only superuser, staff or the user themselves)."""
@@ -139,7 +139,7 @@ def update_user(
 @router.delete("/{user_id}")
 def delete_user(
     user_id: int, 
-    db: Session = Depends(database.get_db), 
+    db: Session = Depends(database.get_postgres_db), 
     current_user: models.User = Depends(get_current_user)
 ):
     """Only superusers and staff can delete users."""

@@ -42,7 +42,7 @@ def common_login(user, password):
 
 
 @router.post("/login/json", response_model=token.Token)
-def login_json(request: user.LoginRequest, db: Session = Depends(database.get_db)):
+def login_json(request: user.LoginRequest, db: Session = Depends(database.get_postgres_db)):
     """Login with JSON (For Postman, Mobile Apps, etc.)"""
     user = db.query(models.User).filter(models.User.email == request.email).first()
 
@@ -52,7 +52,7 @@ def login_json(request: user.LoginRequest, db: Session = Depends(database.get_db
 @router.post("/login", response_model=token.Token)
 def login_oauth(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_postgres_db)
 ):
     """Login with OAuth2 Password Flow (Swagger UI)"""
 
@@ -71,7 +71,7 @@ def get_current_user(
 @router.post("/logout")
 def logout(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_postgres_db)
 ):
     """Adds token to the blacklist upon logout"""
 

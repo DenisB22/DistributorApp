@@ -33,7 +33,7 @@ def is_token_blacklisted(token: str, db: Session) -> bool:
     return db.query(models.TokenBlacklist).filter_by(token=token).first() is not None
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_postgres_db)):
     """Retrieves the currently authenticated user based on the provided token."""
     credentials_exception = HTTPException(
         status_code=401,

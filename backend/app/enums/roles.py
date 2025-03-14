@@ -1,11 +1,11 @@
 from enum import Enum
-from app.db.database import SessionLocal
+from app.db.database import PostgresSessionLocal
 from app import models
 
 
 def get_roles():
     role_lst = []
-    db = SessionLocal()
+    db = PostgresSessionLocal()
     role_model = db.query(models.Role).all()
     for item in role_model:
         role_lst.append(item.name)

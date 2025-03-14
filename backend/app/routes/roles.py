@@ -12,7 +12,7 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 @router.post("/roles/", response_model=role.Role)
 def create_role(
     role: role.RoleCreate,
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """Creates a new role (admins and superusers only)."""
@@ -35,7 +35,7 @@ def create_role(
 
 @router.get("/roles/", response_model=list[role.Role])
 def get_roles(
-    db: Session = Depends(database.get_db),
+    db: Session = Depends(database.get_postgres_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """Returns all available roles (admins and superusers only)."""

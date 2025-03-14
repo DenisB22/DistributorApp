@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import logging
 
-from app.db.database import SessionLocal
+from app.db.database import PostgresSessionLocal
 from app.models import TokenBlacklist
 
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def delete_expired_tokens():
     """Deletes blacklisted tokens older than 24 hours."""
-    db: Session = SessionLocal()
+    db: Session = PostgresSessionLocal()
     expiration_time = datetime.utcnow() - timedelta(hours=24)
     
     deleted_tokens = db.query(TokenBlacklist).filter(TokenBlacklist.created_at < expiration_time).delete()
