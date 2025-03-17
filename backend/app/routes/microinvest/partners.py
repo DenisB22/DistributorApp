@@ -8,7 +8,7 @@ router = APIRouter(prefix="/microinvest/partners", tags=["Microinvest - Partners
 
 @router.get("/")
 def get_partners(
-    db: Session = Depends(get_mssql_db),
+    mssql_db: Session = Depends(get_mssql_db),
     page: int = Query(1, alias="page", ge=1),
     limit: int = Query(50, alias="limit", ge=1, le=100),
     id: int = Query(None, alias="id"),
@@ -48,7 +48,7 @@ def get_partners(
     params["limit"] = limit
 
     # Execute query
-    result = db.execute(text(query), params).mappings().all()
+    result = mssql_db.execute(text(query), params).mappings().all()
     
     # Transform result into list of dictionaries
     partners = [dict(row) for row in result]

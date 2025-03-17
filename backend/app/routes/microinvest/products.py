@@ -8,7 +8,7 @@ router = APIRouter(prefix="/microinvest/products", tags=["Microinvest - Products
 
 @router.get("/")
 def get_products(
-    db: Session = Depends(get_mssql_db),
+    mssql_db: Session = Depends(get_mssql_db),
     name: str = Query(None, description="Filter by product name"),
     barcode: str = Query(None, description="Filter by barcode"),
     page: int = Query(1, ge=1, description="Page number (1-based index)"),
@@ -34,7 +34,7 @@ def get_products(
     # Add Pagination
     query = text(f"{query.text} ORDER BY ID OFFSET :offset ROWS FETCH NEXT :page_size ROWS ONLY")
 
-    result = db.execute(query, {
+    result = mssql_db.execute(query, {
         "name": f"%{name}%" if name else None,
         "barcode": barcode,
         "offset": offset,

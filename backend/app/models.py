@@ -20,6 +20,8 @@ class User(Base):
 
     role_id = Column(Integer, ForeignKey("roles.id")) # FK to roles
     role = relationship("Role", back_populates="users")
+    # mapping with `UserMapping`
+    mapping = relationship("UserMapping", back_populates="user", uselist=False)
 
 
 class TokenBlacklist(Base):
@@ -36,5 +38,19 @@ class Role(Base):
     name = Column(String, unique=True, nullable=False) # 'admin', 'staff', 'client', etc.
 
     users = relationship("User", back_populates="role")
+
+
+class UserMapping(Base):
+    __tablename__ = "user_mapping"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    microinvest_user_id = Column(Integer, unique=True, nullable=False)
+    created_at = Column(DateTime, default=func.now())
+
+    # Relationship for easy access
+    user = relationship("User", back_populates="mapping")
+
+
 
 
