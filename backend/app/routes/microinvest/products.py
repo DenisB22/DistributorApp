@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.db.database import get_mssql_db
+from app.schemas.user_mapping import UserMappingResponse
+from app.utils import get_current_user_with_mapping
 
 router = APIRouter(prefix="/microinvest/products", tags=["Microinvest - Products"])
 
@@ -17,7 +19,6 @@ def get_products(
     """Returns a paginated list of products from Microinvest"""
 
     offset = (page - 1) * page_size  # Calculates where to start next page from
-    print(f"OFFSET: {offset}")
 
     query = text(
         f"""

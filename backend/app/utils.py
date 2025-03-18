@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app import models
 from app.db import database
 from app.config import config
+from app.schemas.user_mapping import UserMappingResponse
+from app.models import User, UserMapping
 
 SECRET_KEY = config["SECRET_KEY"]
 ALGORITHM = config["ALGORITHM"]
@@ -59,5 +61,36 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_current_user_with_mapping(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(database.get_postgres_db),
+    db_mssql: Session = Depends(database.get_mssql_db),
+) -> UserMappingResponse:
+    """Retrieves authenticated user and ensures they are mapped to Microinvest."""
+    user = get_current_user(token, db)
+
+    # Check if user is mapped to Microinvest
+    user_mapping = db.query(UserMapping).filter(
+        UserMapping.user_id == user.id
+    ).first()
+
+    if not user_mapping:
+        raise HTTPException(status_code=403, detail="User is not mapped to Microinvest")
+
+    # Fetch UserLevel from Microinvest
+    query = "SELECT UserLevel FROM dbo.Users WHERE ID = :user_id"
+    user_level = db_mssql.execute(query, {"user_id": user_mapping.microinvest_user_id}).scalar()
+
+    if user_level is None:
+        raise HTTPException(status_code=404, detail="Microinvest user not found")
+
+    return UserMappingResponse(
+        id=user_mapping.id,
+        user_id=user_mapping.user_id,
+        microinvest_user_id=user_mapping.microinvest_user_id,
+        user_level=user_level
+    )
 
 

@@ -47,6 +47,7 @@ class UserMapping(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     microinvest_user_id = Column(Integer, unique=True, nullable=False)
     created_at = Column(DateTime, default=func.now())
+    user_level = Column(Integer, nullable=False)  # New field to store UserLevel
 
     # Relationship for easy access
     user = relationship("User", back_populates="mapping")
