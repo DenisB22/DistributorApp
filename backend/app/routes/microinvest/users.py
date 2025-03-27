@@ -38,7 +38,7 @@ def map_user(
         raise HTTPException(status_code=404, detail="User not found in Microinvest database.")
     
     # Check if the user is already mapped
-    existing_mapping = db.query(UserMapping).filter(UserMapping.user_id == current_user.id).first()
+    existing_mapping = db.query(UserMapping).filter(id == mapping_data.user_id).first()
     if existing_mapping:
         raise HTTPException(status_code=400, detail="User is already mapped to a Microinvest user.")
 
@@ -51,7 +51,7 @@ def map_user(
 
     # Create a new mapping entry
     new_mapping = UserMapping(
-        user_id=current_user.id,
+        user_id=mapping_data.user_id,
         microinvest_user_id=mapping_data.microinvest_user_id,
         user_level=user_level
     )

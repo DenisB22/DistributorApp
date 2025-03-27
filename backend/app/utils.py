@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app import models
 from app.db import database
 from app.config import config
@@ -80,7 +81,7 @@ def get_current_user_with_mapping(
         raise HTTPException(status_code=403, detail="User is not mapped to Microinvest")
 
     # Fetch UserLevel from Microinvest
-    query = "SELECT UserLevel FROM dbo.Users WHERE ID = :user_id"
+    query = text("SELECT UserLevel FROM dbo.Users WHERE ID = :user_id")
     user_level = db_mssql.execute(query, {"user_id": user_mapping.microinvest_user_id}).scalar()
 
     if user_level is None:

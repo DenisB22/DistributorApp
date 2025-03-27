@@ -14,3 +14,8 @@ def get_roles():
 
 
 EnumRoles = Enum("Role", {name: name for name in get_roles()}, type=str)
+
+
+class MicroinvestUserLevel(Enum):
+    NORMAL_USER = 0  # Standard user without admin privileges
+    SUPERUSER = 3  # Admin-level access in Microinvest
