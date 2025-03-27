@@ -111,3 +111,69 @@ def get_operations(
         )
         for row in operations
     ]
+
+
+@router.get("/{operation_id}", response_model=OperationResponse, response_model_exclude_none=True)
+def get_operation_by_id(
+    operation_id: int,
+    db: Session = Depends(get_mssql_db),
+    current_user_mapping: UserMapping = Depends(get_current_user_with_mapping),
+):
+    """
+    Retrieves a single operation by ID.
+    Non-admin users can only access their own operations.
+    Admins can access all operations.
+    """
+
+    query = """
+        SELECT  
+            u.Name AS user_name,
+            p.Company AS partner_name, 
+            o.GoodID AS good_id,
+            g.Name AS good_name, 
+            ot.BG AS operation_name,
+            o.ID AS operation_id,
+            o.OperType AS operation_type,
+            o.UserID AS user_id,
+            o.PartnerID AS partner_id,
+            o.Date AS operation_date, 
+            o.Qtty AS operation_qtty, 
+            o.PriceOut AS price_out, 
+            o.PriceIn AS price_in
+        FROM dbo.Operations o
+        LEFT JOIN dbo.Users u ON o.UserID = u.ID
+        LEFT JOIN dbo.Partners p ON o.PartnerID = p.ID
+        LEFT JOIN dbo.Goods g ON o.GoodID = g.ID
+        LEFT JOIN dbo.OperationType ot ON o.OperType = ot.ID
+        WHERE o.ID = :operation_id
+    """
+
+    params = {"operation_id": operation_id}
+    result = db.execute(text(query), params)
+    operation = result.fetchone()
+
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found.")
+
+    # If not admin, ensure user can only access their own operations
+    if not is_superuser_based_on_user_level(current_user_mapping.user_level):
+        if operation.user_id != current_user_mapping.microinvest_user_id:
+            raise HTTPException(status_code=403, detail="You do not have permission to view this operation.")
+
+    response = OperationResponse(
+        operation_id=operation.operation_id,
+        operation_type=operation.operation_type,
+        operation_name=operation.operation_name,
+        operation_date=operation.operation_date,
+        operation_qtty=operation.operation_qtty,
+        user_id=operation.user_id,
+        user_name=operation.user_name,
+        partner_id=operation.partner_id,
+        partner_name=operation.partner_name,
+        good_id=operation.good_id,
+        good_name=operation.good_name,
+        price_out=operation.price_out,
+        price_in=operation.price_in if is_superuser_based_on_user_level(current_user_mapping.user_level) else None
+    )
+
+    return response
