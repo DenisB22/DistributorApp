@@ -16,7 +16,6 @@ router = APIRouter(prefix="/microinvest/dashboard", tags=["Microinvest - Dashboa
 
 
 def resolve_period(period: str, start_date: Optional[str], end_date: Optional[str]) -> tuple[str, str]:
-    # end_date = datetime.now().replace(microsecond=0)
     end_date = datetime(2024, 10, 1, 23, 59, 59)
     if period == "7d":
         return str(end_date - timedelta(days=7)), str(end_date)

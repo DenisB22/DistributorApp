@@ -23,8 +23,11 @@ def check_admin_or_staff(user: models.User):
     
 
 def validate_start_date_before_end_date(start_date, end_date):
-    if start_date > end_date:
-        raise HTTPException(status_code=400, detail="Start date must be before end date!")
+    try:
+        if start_date > end_date:
+            raise HTTPException(status_code=400, detail="Start date must be before end date!")
+    except TypeError:
+        return
     return
 
 def is_superuser_based_on_user_level(user_level):

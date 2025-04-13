@@ -1,4 +1,4 @@
-package com.example.distributorapp.data
+package com.example.distributorapp.data.remote
 
 
 import com.google.gson.annotations.SerializedName

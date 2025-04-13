@@ -10,19 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.distributorapp.data.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
+import com.example.distributorapp.data.UserPreferences
+import com.example.distributorapp.data.remote.LoginRequest
+import com.example.distributorapp.data.RetrofitClient
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val userPreferences = remember { UserPreferences(context) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -56,39 +56,30 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-//        Button(
-//            onClick = {
-//                if (email.isNotEmpty() && password.isNotEmpty()) {
-//                    Toast.makeText(context, "Успешен вход!", Toast.LENGTH_SHORT).show()
-//                    onLoginSuccess()
-//                } else {
-//                    Toast.makeText(context, "Попълнете всички полета!", Toast.LENGTH_SHORT).show()
-//                }
-//            },
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(text = "Вход")
-//        }
-
         Button(
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty()) {
-                    val request = LoginRequest(email, password)
-                    RetrofitClient.instance.login(request).enqueue(object : Callback<LoginResponse> {
-                        override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                    scope.launch {
+                        try {
+                            val api = RetrofitClient.createAuthApi()
+                            val response = api.login(LoginRequest(email, password))
                             if (response.isSuccessful) {
                                 val token = response.body()?.accessToken
-                                Toast.makeText(context, "Успешен вход!", Toast.LENGTH_SHORT).show()
-                                onLoginSuccess()
+                                if (!token.isNullOrEmpty()) {
+                                    userPreferences.saveToken(token)
+                                    userPreferences.setLoggedIn(true)
+                                    Toast.makeText(context, "Успешен вход!", Toast.LENGTH_SHORT).show()
+                                    onLoginSuccess()
+                                } else {
+                                    Toast.makeText(context, "Липсва токен в отговора!", Toast.LENGTH_SHORT).show()
+                                }
                             } else {
                                 Toast.makeText(context, "Грешни данни!", Toast.LENGTH_SHORT).show()
                             }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Грешка: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
-
-                        override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            Toast.makeText(context, "Грешка: ${t.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                    }
                 } else {
                     Toast.makeText(context, "Попълнете всички полета!", Toast.LENGTH_SHORT).show()
                 }
@@ -98,10 +89,4 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             Text(text = "Вход")
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(onLoginSuccess = {})
 }
