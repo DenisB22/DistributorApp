@@ -1,27 +1,36 @@
-package com.example.distributorapp.ui.layout
+package com.example.distributorapp.ui.common
 
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import com.example.distributorapp.ui.navigation.DrawerItem
+import com.example.distributorapp.ui.navigation.DrawerMenu
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainLayout(content: @Composable () -> Unit) {
+fun MainLayout(
+    drawerItems: List<DrawerItem>,
+    onDrawerItemClick: (DrawerItem) -> Unit,
+    onLogout: () -> Unit,
+    content: @Composable () -> Unit
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Text("Меню", modifier = Modifier.padding(16.dp))
-                // Добави тук опции по-късно
-            }
+            DrawerMenu(
+                drawerItems = drawerItems,
+                onDrawerItemClick = onDrawerItemClick,
+                onLogout = onLogout
+            )
         }
     ) {
         Scaffold(
@@ -42,4 +51,3 @@ fun MainLayout(content: @Composable () -> Unit) {
         }
     }
 }
-
