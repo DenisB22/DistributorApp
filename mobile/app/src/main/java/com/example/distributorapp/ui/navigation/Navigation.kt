@@ -47,12 +47,21 @@ fun AppNavigation(
                         popUpTo(Screen.Dashboard.route) { inclusive = true }
                     }
                 },
-                navController = navController  // <-- Ново!
+                navController = navController
             )
         }
 
         composable(route = Screen.Partners.route) {
-            PartnerScreen(userPreferences = userPreferences)
+            PartnerScreen(
+                userPreferences = userPreferences,
+                onLogout = {
+                    onLogout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                    }
+                },
+                navController = navController
+            )
         }
     }
 }

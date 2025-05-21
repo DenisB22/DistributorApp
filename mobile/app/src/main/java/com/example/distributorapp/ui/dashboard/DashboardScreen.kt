@@ -3,8 +3,6 @@ package com.example.distributorapp.ui.dashboard
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,10 +13,9 @@ import androidx.navigation.NavController
 import com.example.distributorapp.data.UserPreferences
 import com.example.distributorapp.data.model.DashboardResponse
 import com.example.distributorapp.ui.navigation.DrawerItem
-import com.example.distributorapp.ui.navigation.DrawerMenu
 import com.example.distributorapp.viewmodel.DashboardViewModel
 import com.example.distributorapp.viewmodel.DashboardViewModelFactory
-import kotlinx.coroutines.launch
+import com.example.distributorapp.ui.components.MainScaffoldLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,9 +31,6 @@ fun DashboardScreen(
     val dashboardData by viewModel.dashboardData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
     val drawerItems = listOf(
         DrawerItem(title = "Dashboard", route = "dashboard_screen"),
         DrawerItem(title = "Partners", route = "partner_screen"),
@@ -47,51 +41,21 @@ fun DashboardScreen(
         viewModel.fetchDashboardData()
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            DrawerMenu(
-                drawerItems = drawerItems,
-                onDrawerItemClick = { item ->
-                    scope.launch { drawerState.close() }
-                    navController.navigate(item.route)
-                },
-                onLogout = {
-                    onLogout()
-                }
-            )
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Dashboard") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch { drawerState.open() }
-                        }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    }
-                )
-            }
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-            ) {
-                when {
-                    isLoading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                    dashboardData != null -> {
-                        DashboardContent(dashboardData!!)
-                    }
-                    else -> {
-                        Text("No data available", modifier = Modifier.align(Alignment.Center))
-                    }
-                }
+    MainScaffoldLayout(
+        navController = navController,
+        drawerItems = drawerItems,
+        onLogout = onLogout,
+        screenTitle = "Dashboard"
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            when {
+                isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                dashboardData != null -> DashboardContent(dashboardData!!)
+                else -> Text("No data available", modifier = Modifier.align(Alignment.Center))
             }
         }
     }

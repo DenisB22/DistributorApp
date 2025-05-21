@@ -14,6 +14,9 @@ import com.example.distributorapp.viewmodel.PartnerViewModelFactory
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import com.example.distributorapp.ui.components.MainScaffoldLayout
+import com.example.distributorapp.ui.navigation.DrawerItem
+import androidx.navigation.NavController
 
 
 @Composable
@@ -58,7 +61,11 @@ fun PartnerList(viewModel: PartnerViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PartnerScreen(userPreferences: UserPreferences) {
+fun PartnerScreen(
+    userPreferences: UserPreferences,
+    onLogout: () -> Unit,
+    navController: NavController
+) {
     val viewModel: PartnerViewModel = viewModel(
         factory = PartnerViewModelFactory(userPreferences)
     )
@@ -77,58 +84,73 @@ fun PartnerScreen(userPreferences: UserPreferences) {
     var selectedOption by remember { mutableStateOf("Фирма") }
     var searchText by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Dropdown Menu for parameter choice
-        var expanded by remember { mutableStateOf(false) }
+    val drawerItems = listOf(
+        DrawerItem(title = "Dashboard", route = "dashboard_screen"),
+        DrawerItem(title = "Partners", route = "partner_screen"),
+        // We will add another screens here
+    )
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+    MainScaffoldLayout(
+        navController = navController,
+        drawerItems = drawerItems,
+        onLogout = onLogout,
+        screenTitle = "Партньори"
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            TextField(
-                value = selectedOption,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Търси по") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor()
-            )
-
-            ExposedDropdownMenu(
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded }
             ) {
-                searchOptions.keys.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            selectedOption = option
-                            expanded = false
-                        }
-                    )
+                TextField(
+                    value = selectedOption,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Търси по") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    searchOptions.keys.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selectedOption = option
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
+
+            TextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = { Text("Стойност за търсене") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(onClick = {
+                viewModel.searchPartners(
+                    searchOptions[selectedOption] ?: "company",
+                    searchText
+                )
+            }) {
+                Text("Търси")
+            }
+
+            PartnerList(viewModel)
         }
-
-        TextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            label = { Text("Стойност за търсене") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Button(onClick = {
-            viewModel.searchPartners(searchOptions[selectedOption] ?: "company", searchText)
-        }) {
-            Text("Търси")
-        }
-
-        PartnerList(viewModel)
     }
 }
