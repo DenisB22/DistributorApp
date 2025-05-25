@@ -4,6 +4,7 @@ import com.example.distributorapp.data.remote.AuthApi
 import com.example.distributorapp.data.remote.DashboardApi
 import com.example.distributorapp.data.remote.AuthInterceptor
 import com.example.distributorapp.data.remote.PartnerApi
+import com.example.distributorapp.data.remote.ProductApi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,6 +41,19 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(PartnerApi::class.java)
+    }
+
+    fun createProductApi(userPreferences: UserPreferences): ProductApi {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(userPreferences))
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ProductApi::class.java)
     }
 
     private fun getOkHttpClient(userPreferences: UserPreferences): OkHttpClient {

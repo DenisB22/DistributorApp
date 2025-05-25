@@ -1,4 +1,4 @@
-package com.example.distributorapp.ui.partner
+package com.example.distributorapp.ui.products
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,80 +9,29 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.distributorapp.data.UserPreferences
-import com.example.distributorapp.viewmodel.PartnerViewModel
-import com.example.distributorapp.viewmodel.PartnerViewModelFactory
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.example.distributorapp.ui.components.MainScaffoldLayout
 import com.example.distributorapp.ui.navigation.DrawerItem
 import androidx.navigation.NavController
+import com.example.distributorapp.data.RetrofitClient
+import com.example.distributorapp.data.repository.ProductRepository
+import com.example.distributorapp.data.viewmodel.ProductViewModel
+import com.example.distributorapp.data.viewmodel.ProductViewModelFactory
 
-
-@Composable
-fun PartnerList(viewModel: PartnerViewModel) {
-    val partners by viewModel.partners.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
-        if (partners.isEmpty()) {
-            Text(
-                text = "Няма намерени партньори",
-                modifier = Modifier.padding(16.dp)
-            )
-        } else {
-            // SCROLLABLE COLUMN
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                items(partners) { partner ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(text = "Фирма: ${partner.Company}")
-                            Text(text = "Телефон: ${partner.Phone}")
-                            Text(text = "Булстат: ${partner.TaxNo}")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PartnerScreen(
+fun ProductScreen(
     userPreferences: UserPreferences,
-    onLogout: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    onLogout: () -> Unit
 ) {
-    val viewModel: PartnerViewModel = viewModel(
-        factory = PartnerViewModelFactory(userPreferences)
-    )
-
-    LaunchedEffect(Unit) {
-        viewModel.searchPartners(field="", query = "")
-    }
-
-    val searchOptions = mapOf(
-        "Фирма" to "company",
-        "МОЛ" to "mol",
-        "Телефон" to "phone",
-        "Булстат" to "taxno"
-    )
-
-    var selectedOption by remember { mutableStateOf("Фирма") }
-    var searchText by remember { mutableStateOf("") }
+    val api = RetrofitClient.createProductApi(userPreferences)
+    val repository = ProductRepository(api)
+    val factory = remember { ProductViewModelFactory(repository, userPreferences) }
+    val viewModel: ProductViewModel = viewModel(factory = factory)
 
     val drawerItems = listOf(
         DrawerItem(title = "Dashboard", route = "dashboard_screen"),
@@ -91,11 +40,22 @@ fun PartnerScreen(
         // We will add another screens here
     )
 
+    val searchOptions = mapOf(
+        "Име" to "name",
+        "Код" to "code",
+        "Баркод" to "barcode"
+    )
+
+    var selectedOption by remember { mutableStateOf("Име") }
+    var searchText by remember { mutableStateOf("") }
+    val isLoading by viewModel.isLoading.collectAsState()
+    val products by viewModel.products.collectAsState()
+
     MainScaffoldLayout(
         navController = navController,
         drawerItems = drawerItems,
         onLogout = onLogout,
-        screenTitle = "Партньори"
+        screenTitle = "Продукти"
     ) { padding ->
         Column(
             modifier = Modifier
@@ -143,15 +103,53 @@ fun PartnerScreen(
             )
 
             Button(onClick = {
-                viewModel.searchPartners(
-                    searchOptions[selectedOption] ?: "company",
-                    searchText
+                val selectedField = searchOptions[selectedOption] ?: "name"
+                val name = if (selectedField == "name") searchText else null
+                val code = if (selectedField == "code") searchText else null
+                val barcode = if (selectedField == "barcode") searchText else null
+
+                viewModel.searchProducts(
+                    name = name,
+                    code = code,
+                    barcode = barcode,
+                    field = selectedField,
+                    query = searchText
                 )
             }) {
-                Text("Търси")
+                Text(text = "Търси")
             }
 
-            PartnerList(viewModel)
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                if (products.isEmpty()) {
+                    Text("Няма намерени продукти")
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp)
+                    ) {
+                        items(products) { product ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.cardElevation(4.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text("Име: ${product.Name}")
+                                    Text("Код: ${product.Code}")
+                                    Text("Баркод: ${product.BarCode}")
+                                    Text("Цена: ${product.PriceOut} лв")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
