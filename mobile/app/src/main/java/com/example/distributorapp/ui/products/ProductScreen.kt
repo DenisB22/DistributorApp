@@ -43,7 +43,7 @@ fun ProductScreen(
     val searchOptions = mapOf(
         "Име" to "name",
         "Код" to "code",
-        "Баркод" to "barcode"
+        "Баркод" to "bar_code"
     )
 
     var selectedOption by remember { mutableStateOf("Име") }
@@ -106,12 +106,12 @@ fun ProductScreen(
                 val selectedField = searchOptions[selectedOption] ?: "name"
                 val name = if (selectedField == "name") searchText else null
                 val code = if (selectedField == "code") searchText else null
-                val barcode = if (selectedField == "barcode") searchText else null
+                val barCode = if (selectedField == "bar_code") searchText else null
 
                 viewModel.searchProducts(
                     name = name,
                     code = code,
-                    barcode = barcode,
+                    bar_code = barCode,
                     field = selectedField,
                     query = searchText
                 )
@@ -139,10 +139,10 @@ fun ProductScreen(
                                 elevation = CardDefaults.cardElevation(4.dp)
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
-                                    Text("Име: ${product.Name}")
-                                    Text("Код: ${product.Code}")
-                                    Text("Баркод: ${product.BarCode}")
-                                    Text("Цена: ${product.PriceOut} лв")
+                                    Text("Име: ${product.name}")
+                                    Text("Код: ${product.code}")
+                                    Text("Баркод: ${product.barCode}")
+                                    Text("Цена: ${product.priceOut} лв")
                                 }
                             }
                         }

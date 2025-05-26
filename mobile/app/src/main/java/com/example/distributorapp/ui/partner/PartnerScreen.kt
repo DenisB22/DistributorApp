@@ -48,9 +48,9 @@ fun PartnerList(viewModel: PartnerViewModel) {
                         elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text(text = "Фирма: ${partner.Company}")
-                            Text(text = "Телефон: ${partner.Phone}")
-                            Text(text = "Булстат: ${partner.TaxNo}")
+                            Text(text = "Фирма: ${partner.company}")
+                            Text(text = "Телефон: ${partner.phone}")
+                            Text(text = "Булстат: ${partner.taxNo}")
                         }
                     }
                 }
@@ -78,7 +78,7 @@ fun PartnerScreen(
         "Фирма" to "company",
         "МОЛ" to "mol",
         "Телефон" to "phone",
-        "Булстат" to "taxno"
+        "Булстат" to "tax_no"
     )
 
     var selectedOption by remember { mutableStateOf("Фирма") }

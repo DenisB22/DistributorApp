@@ -5,19 +5,18 @@ from typing import Optional
 
 class OperationResponse(BaseModel):
     operation_id: int
-    operation_type: int
-    operation_name: str
-    operation_date: datetime
-    operation_qtty: float
-    user_id: int
-    user_name: str
-    partner_id: int
-    partner_name: str
-    good_id: int
-    good_name: str
-    price_out: float  # Always visible
+    operation_type: Optional[int] = None
+    operation_name: Optional[str] = None
+    operation_date: Optional[datetime] = None
+    operation_qtty: Optional[float] = None
+    user_id: Optional[int] = None
+    user_name: Optional[str] = None
+    partner_id: Optional[int] = None
+    partner_name: Optional[str] = None
+    good_id: Optional[int] = None
+    good_name: Optional[str] = None
+    price_out: Optional[float] = None  # Always visible
     price_in: Optional[float] = None  # Only visible to admins
-
 
     class Config:
         orm_mode = True

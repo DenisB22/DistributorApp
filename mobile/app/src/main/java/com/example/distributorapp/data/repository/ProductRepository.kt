@@ -9,10 +9,10 @@ class ProductRepository(private val api: ProductApi) {
         token: String,
         name: String?,
         code: String?,
-        barcode: String?,
+        bar_code: String?,
         page: Int,
-        pageSize: Int
+        page_size: Int
     ): Response<ProductResponse> {
-        return api.getProducts("Bearer $token", name, code, barcode, page, pageSize)
+        return api.getProducts("Bearer $token", name, code, bar_code, page, page_size)
     }
 }

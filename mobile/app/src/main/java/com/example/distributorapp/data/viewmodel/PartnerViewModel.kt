@@ -27,13 +27,13 @@ class PartnerViewModel(
         company: String?,
         mol: String?,
         phone: String?,
-        taxno: String?
+        tax_no: String?
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val token = userPreferences.getToken()
-                val response = repository.getPartners(token, page, limit, company, mol, phone, taxno)
+                val response = repository.getPartners(token, page, limit, company, mol, phone, tax_no)
                 if (response.isSuccessful) {
                     _partners.value = response.body()?.partners ?: emptyList()
                 } else {
@@ -60,7 +60,7 @@ class PartnerViewModel(
                     company = if (field == "company") query else null,
                     mol = if (field == "mol") query else null,
                     phone = if (field == "phone") query else null,
-                    taxno = if (field == "taxno") query else null
+                    tax_no = if (field == "tax_no") query else null
                 )
 
                 if (response.isSuccessful) {

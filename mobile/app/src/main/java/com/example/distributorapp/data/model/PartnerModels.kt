@@ -7,9 +7,9 @@ data class PartnerResponse(
 )
 
 data class Partner(
-    val ID: Int,
-    val Company: String?,
-    val MOL: String?,
-    val Phone: String?,
-    val TaxNo: String?
+    @SerializedName("partner_id") val partnerId: Int,
+    @SerializedName("company") val company: String?,
+    @SerializedName("mol") val mol: String?,
+    @SerializedName("phone") val phone: String?,
+    @SerializedName("tax_no") val taxNo: String?
 )

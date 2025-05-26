@@ -20,13 +20,13 @@ class ProductViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    fun searchProducts(name: String?, code: String?, barcode: String?, page: Int = 1, pageSize: Int = 20, field: String, query: String) {
+    fun searchProducts(name: String?, code: String?, bar_code: String?, page: Int = 1, page_size: Int = 20, field: String, query: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val token = userPreferences.getToken()
                 token?.let {
-                    val response = repository.getProducts(it, name, code, barcode, page, pageSize)
+                    val response = repository.getProducts(it, name, code, bar_code, page, page_size)
                     if (response.isSuccessful) {
                         _products.value = response.body()?.products ?: emptyList()
                     }

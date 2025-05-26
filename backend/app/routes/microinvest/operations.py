@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
+from app import commons
 from app.schemas.operations import OperationResponse
 from app.db.database import get_mssql_db
 from app.utils import get_current_user_with_mapping
@@ -89,28 +91,32 @@ def get_operations(
     query += " ORDER BY Date DESC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY"
     params["limit"] = limit
     params["offset"] = offset
-    result = db.execute(text(query), params)
-    operations = result.fetchall()
+    try:
+        result = db.execute(text(query), params)
+        operations = result.fetchall()
 
-    # Convert query results to response model
-    return [
-        OperationResponse(
-            operation_id=row.operation_id,
-            operation_type=row.operation_type,
-            operation_name=row.operation_name,
-            operation_date=row.operation_date,
-            operation_qtty=row.operation_qtty,
-            user_id=row.user_id,
-            user_name=row.user_name,
-            partner_id=row.partner_id,
-            partner_name=row.partner_name,
-            good_id=row.good_id,
-            good_name=row.good_name,
-            price_out=row.price_out,
-            price_in=row.price_in if is_superuser_based_on_user_level(current_user_mapping.user_level) else None  # Hide PriceIn for non-admins
-        )
-        for row in operations
-    ]
+        # Convert query results to response model
+        return [
+            OperationResponse(
+                operation_id=row.operation_id,
+                operation_type=row.operation_type,
+                operation_name=row.operation_name,
+                operation_date=row.operation_date,
+                operation_qtty=row.operation_qtty,
+                user_id=row.user_id,
+                user_name=row.user_name,
+                partner_id=row.partner_id,
+                partner_name=row.partner_name,
+                good_id=row.good_id,
+                good_name=row.good_name,
+                price_out=row.price_out,
+                price_in=row.price_in if is_superuser_based_on_user_level(current_user_mapping.user_level) else None  # Hide PriceIn for non-admins
+            )
+            for row in operations
+        ]
+
+    except Exception as e:
+        return commons.return_http_400_response(f'An error occurred: {e}')
 
 
 @router.get("/{operation_id}", response_model=OperationResponse, response_model_exclude_none=True)

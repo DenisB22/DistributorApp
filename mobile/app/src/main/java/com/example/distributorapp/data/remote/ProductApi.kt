@@ -12,8 +12,8 @@ interface ProductApi {
         @Header("Authorization") token: String,
         @Query("name") name: String? = null,
         @Query("code") code: String? = null,
-        @Query("barcode") barcode: String? = null,
+        @Query("bar_code") bar_code: String? = null,
         @Query("page") page: Int = 1,
-        @Query("page_size") pageSize: Int = 20
+        @Query("page_size") page_size: Int = 20
     ): Response<ProductResponse>
 }

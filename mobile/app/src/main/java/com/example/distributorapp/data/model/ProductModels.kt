@@ -9,12 +9,11 @@ data class ProductResponse(
 
 
 data class Product(
-    val ID: Int,
-    val Code: String,
-    val BarCode: String?,
-    val Name: String,
-    val Measure: String,
-    val PriceIn: Double,
-    val PriceOut: Double,
-    val Description: String?
+    @SerializedName("product_id") val productId: Int,
+    @SerializedName("code") val code: String?,
+    @SerializedName("bar_code") val barCode: String?,
+    @SerializedName("name") val name: String?,
+    @SerializedName("measure") val measure: String?,
+    @SerializedName("price_out") val priceOut: Double?,
+    @SerializedName("description") val description: String?
 )

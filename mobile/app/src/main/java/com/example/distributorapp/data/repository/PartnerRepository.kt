@@ -12,7 +12,7 @@ class PartnerRepository(private val api: PartnerApi) {
         company: String?,
         mol: String?,
         phone: String?,
-        taxno: String?
+        tax_no: String?
     ): Response<PartnerResponse> {
         return api.getPartners(
             token = "Bearer $token",
@@ -21,7 +21,7 @@ class PartnerRepository(private val api: PartnerApi) {
             company = company,
             mol = mol,
             phone = phone,
-            taxno = taxno
+            tax_no = tax_no
         )
     }
 }

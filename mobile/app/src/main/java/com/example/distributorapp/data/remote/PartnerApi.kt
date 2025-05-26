@@ -15,6 +15,6 @@ interface PartnerApi {
             @Query("company") company: String?,
             @Query("mol") mol: String?,
             @Query("phone") phone: String?,
-            @Query("taxno") taxno: String?
+            @Query("tax_no") tax_no: String?
         ): Response<PartnerResponse>
 }
