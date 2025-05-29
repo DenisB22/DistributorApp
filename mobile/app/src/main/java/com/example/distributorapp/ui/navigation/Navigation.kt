@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.example.distributorapp.data.UserPreferences
 import com.example.distributorapp.ui.dashboard.DashboardScreen
 import com.example.distributorapp.LoginScreen
+import com.example.distributorapp.ui.partner.OperationScreen
 import com.example.distributorapp.ui.partner.PartnerScreen
 import com.example.distributorapp.ui.products.ProductScreen
 
@@ -15,6 +16,7 @@ sealed class Screen(val route: String) {
     object Dashboard : Screen("dashboard_screen")
     object Partners : Screen("partner_screen")
     object Products: Screen("product_screen")
+    object Operations: Screen("operation_screen")
 }
 
 @Composable
@@ -68,6 +70,19 @@ fun AppNavigation(
 
         composable(route = Screen.Products.route) {
             ProductScreen(
+                userPreferences = userPreferences,
+                onLogout = {
+                    onLogout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                    }
+                },
+                navController = navController
+            )
+        }
+
+        composable(route = Screen.Operations.route) {
+            OperationScreen(
                 userPreferences = userPreferences,
                 onLogout = {
                     onLogout()

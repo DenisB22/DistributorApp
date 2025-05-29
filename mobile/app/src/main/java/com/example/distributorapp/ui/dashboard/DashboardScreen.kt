@@ -35,6 +35,7 @@ fun DashboardScreen(
         DrawerItem(title = "Dashboard", route = "dashboard_screen"),
         DrawerItem(title = "Partners", route = "partner_screen"),
         DrawerItem(title = "Products", route = "product_screen"),
+        DrawerItem(title = "Operations", route = "operation_screen")
         // We will add another screens here
     )
 

@@ -11,7 +11,7 @@ from app.utils import get_current_user_with_mapping
 
 router = APIRouter(prefix="/microinvest/products", tags=["Microinvest - Products"])
 
-
+# TODO: Add correct format of ResponseModel
 @router.get("/")
 def get_products(
     mssql_db: Session = Depends(get_mssql_db),

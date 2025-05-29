@@ -10,7 +10,7 @@ from app.utils import get_current_user_with_mapping
 
 router = APIRouter(prefix="/microinvest/partners", tags=["Microinvest - Partners"])
 
-
+# TODO: Add correct format of ResponseModel
 @router.get("/")
 def get_partners(
     mssql_db: Session = Depends(get_mssql_db),
