@@ -6,16 +6,17 @@ from app import commons
 from app.commons import is_superuser_based_on_user_level
 from app.db.database import get_mssql_db
 from app.models import UserMapping
-from app.schemas.products import ProductResponse
+from app.schemas.products import ProductResponse, ProductApiResponse
 from app.utils import get_current_user_with_mapping
 
 router = APIRouter(prefix="/microinvest/products", tags=["Microinvest - Products"])
 
-# TODO: Add correct format of ResponseModel
-@router.get("/")
+
+@router.get("/", response_model=ProductApiResponse)
 def get_products(
     mssql_db: Session = Depends(get_mssql_db),
     current_user_mapping: UserMapping = Depends(get_current_user_with_mapping),
+    product_id: int = Query(None, description="Filter by product id"),
     name: str = Query(None, description="Filter by product name"),
     code: str = Query(None, description="Filter by code"),
     bar_code: str = Query(None, description="Filter by barcode"),
@@ -67,6 +68,8 @@ def get_products(
         WHERE 1 = 1
     """)
 
+    if product_id:
+        query = text(f"{query.text} AND ID = :product_id")
     if name:
         query = text(f"{query.text} AND Name LIKE :name")
     if code:
@@ -79,6 +82,7 @@ def get_products(
 
     try:
         products = mssql_db.execute(query, {
+            "product_id": product_id,
             "name": f"%{name}%" if name else None,
             "code": code,
             "barcode": bar_code,

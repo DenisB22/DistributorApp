@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class ProductResponse(BaseModel):
@@ -24,3 +24,10 @@ class ProductResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ProductApiResponse(BaseModel):
+    page: int
+    page_size: int
+    total_records: int
+    products: Optional[List[ProductResponse]]

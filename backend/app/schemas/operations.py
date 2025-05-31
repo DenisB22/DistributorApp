@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 
 class OperationResponse(BaseModel):
@@ -20,3 +20,10 @@ class OperationResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class OperationApiResponse(BaseModel):
+    page: int
+    limit: int
+    total_records: int
+    operations: Optional[List[OperationResponse]]

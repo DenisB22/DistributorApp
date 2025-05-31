@@ -4,20 +4,17 @@ from sqlalchemy.sql import text
 
 from app import commons
 from app.db.database import get_mssql_db
-from app.models import UserMapping
-from app.schemas.partners import PartnerResponse
-from app.utils import get_current_user_with_mapping
+from app.schemas.partners import PartnerResponse, PartnerApiResponse
 
 router = APIRouter(prefix="/microinvest/partners", tags=["Microinvest - Partners"])
 
-# TODO: Add correct format of ResponseModel
-@router.get("/")
+
+@router.get("/", response_model=PartnerApiResponse)
 def get_partners(
     mssql_db: Session = Depends(get_mssql_db),
-    current_user_mapping: UserMapping = Depends(get_current_user_with_mapping),
     page: int = Query(1, alias="page", ge=1),
     limit: int = Query(20, le=100, description="Number of results per page (max 100)"),
-    id: int = Query(None, alias="id"),
+    partner_id: int = Query(None, alias="partner_id"),
     company: str = Query(None, alias="company"),
     mol: str = Query(None, alias="mol"),
     phone: str = Query(None, alias="phone"),
@@ -61,9 +58,9 @@ def get_partners(
     
     # Add filters dynamically
     params = {}
-    if id:
-        query += " AND ID = :id"
-        params["id"] = id
+    if partner_id:
+        query += " AND ID = :partner_id"
+        params["partner_id"] = partner_id
     if company:
         query += " AND Company LIKE :company"
         params["company"] = f"%{company}%"  # Search by company name

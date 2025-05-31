@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class PartnerResponse(BaseModel):
@@ -36,3 +36,10 @@ class PartnerResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PartnerApiResponse(BaseModel):
+    page: int
+    limit: int
+    total_records: int
+    partners: Optional[List[PartnerResponse]]
