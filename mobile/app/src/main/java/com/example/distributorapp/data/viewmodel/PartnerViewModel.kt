@@ -21,7 +21,6 @@ class PartnerViewModel(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun fetchPartners(
-        token: String?,
         page: Int,
         limit: Int,
         company: String?,
@@ -34,35 +33,6 @@ class PartnerViewModel(
             try {
                 val token = userPreferences.getToken()
                 val response = repository.getPartners(token, page, limit, company, mol, phone, tax_no)
-                if (response.isSuccessful) {
-                    _partners.value = response.body()?.partners ?: emptyList()
-                } else {
-                    _partners.value = emptyList()
-                }
-            } catch (e: Exception) {
-                _partners.value = emptyList()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun searchPartners(field: String, query: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val token = userPreferences.getToken()
-
-                val response = repository.getPartners(
-                    token = token,
-                    page = 1,
-                    limit = 20,
-                    company = if (field == "company") query else null,
-                    mol = if (field == "mol") query else null,
-                    phone = if (field == "phone") query else null,
-                    tax_no = if (field == "tax_no") query else null
-                )
-
                 if (response.isSuccessful) {
                     _partners.value = response.body()?.partners ?: emptyList()
                 } else {

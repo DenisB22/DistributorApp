@@ -71,7 +71,14 @@ fun PartnerScreen(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.searchPartners(field="", query = "")
+        viewModel.fetchPartners(
+            page=1,
+            limit=20,
+            company="",
+            mol="",
+            phone="",
+            tax_no=""
+        )
     }
 
     val searchOptions = mapOf(
@@ -143,9 +150,19 @@ fun PartnerScreen(
             )
 
             Button(onClick = {
-                viewModel.searchPartners(
-                    searchOptions[selectedOption] ?: "company",
-                    searchText
+                val selectedField = searchOptions[selectedOption] ?: "partner_id"
+                val company = if (selectedField == "company") searchText else null
+                val mol = if (selectedField == "mol") searchText else null
+                val phone = if (selectedField == "phone") searchText else null
+                val tax_no = if (selectedField == "tax_no") searchText else null
+
+                viewModel.fetchPartners(
+                    1,
+                    20,
+                    company,
+                    mol,
+                    phone,
+                    tax_no
                 )
             }) {
                 Text("Търси")
