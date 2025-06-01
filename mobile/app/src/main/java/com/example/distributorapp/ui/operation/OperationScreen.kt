@@ -77,13 +77,14 @@ fun OperationScreen(
     val viewModel: OperationViewModel = viewModel(factory = factory)
 
     val searchOptions = mapOf(
-        "ID на партньор" to "partner_id",
-        "ID на стока" to "good_id",
+        "Име на партньор" to "partner_name",
+        "Име на стока" to "good_name",
+        "Име на операция" to "oper_name",
         "Стартова дата" to "start_date",
         "Крайна дата" to "end_date"
     )
 
-    var selectedOption by remember { mutableStateOf("ID на партньор") }
+    var selectedOption by remember { mutableStateOf("Име на партньор") }
     var searchText by remember { mutableStateOf("") }
 
     val drawerItems = listOf(
@@ -147,18 +148,18 @@ fun OperationScreen(
 
             Button(onClick = {
                 val selectedField = searchOptions[selectedOption] ?: "partner_id"
-                val partner_id = if (selectedField == "partner_id") searchText.toIntOrNull() else null
-                val good_id = if (selectedField == "good_id") searchText.toIntOrNull() else null
-                val oper_type = if (selectedField == "oper_type") searchText.toIntOrNull() else null
+                val partner_name = if (selectedField == "partner_name") searchText else null
+                val good_name = if (selectedField == "good_name") searchText  else null
+                val oper_name = if (selectedField == "oper_name") searchText  else null
                 val start_date = if (selectedField == "start_date") searchText else null
                 val end_date = if (selectedField == "end_date") searchText else null
 
                 viewModel.fetchOperations(
                     1,
                     20,
-                    partner_id,
-                    good_id,
-                    oper_type,
+                    partner_name,
+                    good_name,
+                    oper_name,
                     start_date,
                     end_date
                 )

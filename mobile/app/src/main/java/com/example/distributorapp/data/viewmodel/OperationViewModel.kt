@@ -23,9 +23,9 @@ class OperationViewModel(
     fun fetchOperations(
         page: Int,
         limit: Int,
-        partner_id: Int?,
-        good_id: Int?,
-        oper_type: Int?,
+        partner_name: String?,
+        good_name: String?,
+        oper_name: String?,
         start_date: String?,
         end_date: String?
     ) {
@@ -37,11 +37,11 @@ class OperationViewModel(
                 token?.let {
                     val response = repository.getOperations(
                         it,
-                        page = 1,
-                        limit = 20,
-                        partner_id,
-                        good_id,
-                        oper_type,
+                        page,
+                        limit,
+                        partner_name,
+                        good_name,
+                        oper_name,
                         start_date,
                         end_date
                     )

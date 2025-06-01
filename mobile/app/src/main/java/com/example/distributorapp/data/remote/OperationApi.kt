@@ -12,9 +12,9 @@ interface OperationApi {
         @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("limit") limit: Int = 20,
-        @Query("partner_id") partner_id: Int?,
-        @Query("good_id") good_id: Int?,
-        @Query("oper_type") oper_type: Int?,
+        @Query("partner_name") partner_name: String?,
+        @Query("good_name") good_name: String?,
+        @Query("oper_name") oper_type: String?,
         @Query("start_date") start_date: String?,
         @Query("end_date") end_date: String?
     ): Response<OperationsResponse>

@@ -9,18 +9,18 @@ class OperationRepository(private val api: OperationApi) {
         token: String?,
         page: Int,
         limit: Int,
-        partner_id: Int?,
-        good_id: Int?,
-        oper_type: Int?,
+        partner_name: String?,
+        good_name: String?,
+        oper_name: String?,
         start_date: String?,
         end_date: String?
     ): Response<OperationsResponse> {
         return api.getOperations(
             "Bearer $token",
             page, limit,
-            partner_id,
-            good_id,
-            oper_type,
+            partner_name,
+            good_name,
+            oper_name,
             start_date,
             end_date
         )
