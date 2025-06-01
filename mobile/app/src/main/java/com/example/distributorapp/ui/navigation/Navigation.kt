@@ -7,9 +7,9 @@ import androidx.navigation.compose.composable
 import com.example.distributorapp.data.UserPreferences
 import com.example.distributorapp.ui.dashboard.DashboardScreen
 import com.example.distributorapp.LoginScreen
-import com.example.distributorapp.ui.partner.OperationScreen
+import com.example.distributorapp.ui.operation.OperationScreen
 import com.example.distributorapp.ui.partner.PartnerScreen
-import com.example.distributorapp.ui.products.ProductScreen
+import com.example.distributorapp.ui.product.ProductScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login_screen")

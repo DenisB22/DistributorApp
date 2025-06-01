@@ -1,4 +1,4 @@
-package com.example.distributorapp.ui.partner
+package com.example.distributorapp.ui.operation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -73,8 +73,22 @@ fun OperationScreen(
 
     val api = RetrofitClient.createOperationApi(userPreferences)
     val repository = OperationRepository(api)
-    val factory = remember { OperationViewModelFactory(repository, userPreferences) }
-    val viewModel: OperationViewModel = viewModel(factory = factory)
+
+    val viewModel: OperationViewModel = viewModel(
+        factory = OperationViewModelFactory(repository, userPreferences)
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchOperations(
+            page=1,
+            limit=20,
+            partner_name="",
+            good_name="",
+            oper_name="",
+            start_date="",
+            end_date=""
+        )
+    }
 
     val searchOptions = mapOf(
         "Име на партньор" to "partner_name",

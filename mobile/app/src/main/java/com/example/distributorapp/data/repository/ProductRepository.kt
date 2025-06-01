@@ -6,13 +6,13 @@ import retrofit2.Response
 
 class ProductRepository(private val api: ProductApi) {
     suspend fun getProducts(
-        token: String,
+        token: String?,
         name: String?,
         code: String?,
         bar_code: String?,
-        page: Int,
-        page_size: Int
+        offset: Int,
+        limit: Int
     ): Response<ProductResponse> {
-        return api.getProducts("Bearer $token", name, code, bar_code, page, page_size)
+        return api.getProducts("Bearer $token", name, code, bar_code, offset, limit)
     }
 }

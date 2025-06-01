@@ -13,7 +13,7 @@ interface ProductApi {
         @Query("name") name: String? = null,
         @Query("code") code: String? = null,
         @Query("bar_code") bar_code: String? = null,
-        @Query("page") page: Int = 1,
-        @Query("page_size") page_size: Int = 20
+        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int = 20
     ): Response<ProductResponse>
 }

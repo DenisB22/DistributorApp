@@ -20,12 +20,16 @@ def get_products(
     name: str = Query(None, description="Filter by product name"),
     code: str = Query(None, description="Filter by code"),
     bar_code: str = Query(None, description="Filter by barcode"),
-    page: int = Query(1, ge=1, description="Page number (1-based index)"),
-    page_size: int = Query(20, le=100, description="Number of results per page (max 100)"),
+    # page: int = Query(1, ge=1, description="Page number (1-based index)"),
+    limit: int = Query(20, le=100, description="Number of results per page (max 100)"),
+    offset: int = Query(0, description="Offset for pagination", ge=0)
 ):
     """Returns a paginated list of products from Microinvest"""
 
-    offset = (page - 1) * page_size  # Calculates where to start next page from
+    # offset = (page - 1) * limit  # Calculates where to start next page from
+    print(f"NAME: {name}")
+    print(f"CODE: {code}")
+    print(f"BAR CODE: {bar_code}")
 
     query = text(f"""
         SELECT
@@ -71,28 +75,34 @@ def get_products(
     if product_id:
         query = text(f"{query.text} AND ID = :product_id")
     if name:
+        name = name.strip()
         query = text(f"{query.text} AND Name LIKE :name")
     if code:
+        code = code.strip()
         query = text(f"{query.text} AND Code = :code")
     if bar_code:
+        bar_code = bar_code.strip()
         query = text(f"{query.text} AND COALESCE(BarCode1, BarCode2, BarCode3) = :barcode")
 
     # Add Pagination
-    query = text(f"{query.text} ORDER BY ID OFFSET :offset ROWS FETCH NEXT :page_size ROWS ONLY")
+    query = text(f"{query.text} ORDER BY ID OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY")
 
     try:
+        print(f"QUERY: {query}")
         products = mssql_db.execute(query, {
             "product_id": product_id,
             "name": f"%{name}%" if name else None,
             "code": code,
             "barcode": bar_code,
             "offset": offset,
-            "page_size": page_size
+            "limit": limit
         }).mappings().all()
-
+        print(f"PRODUCTS: {products}")
+        print(f"LIMIT: {limit}")
+        print(f"OFFSET: {offset}")
         return {
-            "page": page,
-            "page_size": page_size,
+            "offset": offset,
+            "limit": limit,
             "total_records": len(products),
             "products": [
                 ProductResponse(

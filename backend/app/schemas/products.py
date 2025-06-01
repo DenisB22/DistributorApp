@@ -27,7 +27,7 @@ class ProductResponse(BaseModel):
 
 
 class ProductApiResponse(BaseModel):
-    page: int
-    page_size: int
+    offset: int
+    limit: int
     total_records: int
     products: Optional[List[ProductResponse]]
